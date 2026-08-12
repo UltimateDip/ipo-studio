@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>IPO Shorts Studio — 10-Star Algorithm & Video Generator</title>
+  
+  <!-- PWA Metadata -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#080912" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="IPO Studio" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg" />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- App Stylesheet (v2) -->
+  <link rel="stylesheet" href="./css/style.css?v=2" />
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="brand-logo">10★</div>
+      <div>
+        <h1 class="brand-title">IPO Shorts Studio</h1>
+        <span class="brand-badge">Algo Engine</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-icon" id="btnClear" title="Clear Form">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- PWA Install Banner -->
+  <div class="app-container" style="padding-bottom: 0;">
+    <div class="pwa-banner" id="pwaBanner">
+      <div class="pwa-banner-text">
+        <strong>Install App</strong> for faster 1-tap access on your device
+      </div>
+      <button class="btn-install" id="btnInstall">Install</button>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="app-container">
+    
+    <!-- LEFT: Input Form -->
+    <section class="glass-card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>📊</span> IPO Metrics Input
+        </div>
+      </div>
+
+
+
+      <form id="ipoForm" onsubmit="return false;">
+        <!-- Company Name -->
+        <div class="form-group">
+          <label for="companyName">Company / Issue Name</label>
+          <input type="text" id="companyName" placeholder="e.g. Molbio Diagnostics Limited" autocomplete="off" />
+          <div class="input-helper">Suffixes like Ltd/Pvt Ltd are auto-stripped for voiceover</div>
+        </div>
+
+        <!-- Price & Lot Size -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="highPrice">High Band Price</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">₹</span>
+              <input type="number" id="highPrice" placeholder="807" step="any" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="lotSize">Lot Size (Shares)</label>
+            <div class="input-wrapper has-suffix">
+              <input type="number" id="lotSize" placeholder="18" />
+              <span class="input-suffix">qty</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GMP % and GMP ₹ Value -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="gmpPercent">GMP %</label>
+            <div class="input-wrapper has-suffix">
+              <input type="number" id="gmpPercent" placeholder="32" step="any" />
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="gmpValue">GMP Value (₹)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">₹</span>
+              <input type="number" id="gmpValue" placeholder="258" step="any" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Bidding Day & QIB -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="biddingDay">Bidding Day</label>
+            <select id="biddingDay">
+              <option value="1">Day 1</option>
+              <option value="2">Day 2</option>
+              <option value="3" selected>Day 3 / Final</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="qibSub">QIB Bidding</label>
+            <div class="input-wrapper has-suffix">
+              <input type="number" id="qibSub" placeholder="14.5" step="any" />
+              <span class="input-suffix">x</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NII and Overall -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="niiSub">NII / HNI Subscription</label>
+            <div class="input-wrapper has-suffix">
+              <input type="number" id="niiSub" placeholder="8.2" step="any" />
+              <span class="input-suffix">x</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="overallSub">Overall Subscription</label>
+            <div class="input-wrapper has-suffix">
+              <input type="number" id="overallSub" placeholder="17.37" step="any" />
+              <span class="input-suffix">x</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Market Mood -->
+        <div class="form-group">
+          <label for="marketMood">Broader Market Mood</label>
+          <select id="marketMood">
+            <option value="bullish">Bullish / Favorable (10 pts)</option>
+            <option value="neutral" selected>Cautious / Neutral (5 pts)</option>
+            <option value="bearish">Bearish / Negative (0 pts)</option>
+          </select>
+        </div>
+      </form>
+    </section>
+
+    <!-- RIGHT: Results & Generated Assets -->
+    <section class="results-column">
+      
+      <!-- 10-Star Score Hero Card -->
+      <div class="score-hero-card">
+        <div class="score-main-row">
+          <div class="company-callout">
+            <h2 id="companyDisplay">Molbio</h2>
+            <div class="company-sub" id="companySubText">₹807 / share • Lot: 18 • Day 3</div>
+            <div style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; margin-top: 6px;" id="demandText">
+              Strong Demand / High Interest (88/100 pts)
+            </div>
+          </div>
+
+          <div class="rating-badge-circle moderate" id="ratingBadge">
+            <span class="score-number" id="scoreNumber">8.8</span>
+            <span class="score-stars">★ / 10 STARS</span>
+          </div>
+        </div>
+
+        <!-- Quick Key Stats -->
+        <div class="quick-metrics-grid">
+          <div class="metric-item">
+            <div class="metric-label">Est. Lot Profit</div>
+            <div class="metric-val highlight" id="statLotProfit">₹4,644</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">GMP %</div>
+            <div class="metric-val" id="statGmp">32%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">Total Sub</div>
+            <div class="metric-val" id="statSub">17.37x</div>
+          </div>
+        </div>
+
+        <!-- Points Pill Row -->
+        <div class="points-pill-row">
+          <span class="points-pill" id="pillGmp">GMP: <strong>28</strong>/35</span>
+          <span class="points-pill" id="pillQib">QIB: <strong>30</strong>/35</span>
+          <span class="points-pill" id="pillNii">NII: <strong>10</strong>/15</span>
+          <span class="points-pill" id="pillMood">Mood: <strong>10</strong>/10</span>
+          <span class="points-pill" id="pillOverall">Sub: <strong>5</strong>/5</span>
+        </div>
+      </div>
+
+      <!-- SINGLE COMBINED PROMPT (VOICE + VISUAL IN ONE BLOCK) -->
+      <div class="asset-card" style="border: 1.5px solid rgba(0, 240, 255, 0.4); background: linear-gradient(180deg, rgba(0, 240, 255, 0.09) 0%, rgba(22, 26, 44, 0.9) 100%);">
+        <div class="asset-header">
+          <div class="asset-title-group">
+            <span style="font-size: 1.3rem;">⚡</span>
+            <span class="asset-title" style="color: var(--accent-cyan); font-size: 1rem;">Unified AI Video + Female Voice Prompt</span>
+            <span class="asset-tag" style="background: rgba(0, 240, 255, 0.2); color: var(--accent-cyan); font-weight: 700;">1-Click Copy</span>
+          </div>
+          <button class="btn-copy" style="background: var(--accent-cyan); color: #000;" onclick="copyContent('unifiedBox', this)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            Copy Prompt
+          </button>
+        </div>
+        <div class="asset-box code-look" id="unifiedBox" style="max-height: 260px;"></div>
+      </div>
+
+      <!-- ASSET: YouTube Shorts Metadata -->
+      <div class="asset-card">
+        <div class="asset-header">
+          <div class="asset-title-group">
+            <span style="font-size: 1.1rem;">📌</span>
+            <span class="asset-title">YouTube Title (&lt;60 chars)</span>
+          </div>
+          <button class="btn-copy" onclick="copyContent('ytTitleBox', this)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            Copy
+          </button>
+        </div>
+        <div class="asset-box" id="ytTitleBox"></div>
+      </div>
+
+      <!-- ASSET: YouTube Description -->
+      <div class="asset-card">
+        <div class="asset-header">
+          <div class="asset-title-group">
+            <span style="font-size: 1.1rem;">📝</span>
+            <span class="asset-title">YouTube Description & Disclaimer</span>
+          </div>
+          <button class="btn-copy" onclick="copyContent('ytDescBox', this)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            Copy
+          </button>
+        </div>
+        <div class="asset-box" id="ytDescBox"></div>
+      </div>
+
+      <!-- ASSET: Hashtags -->
+      <div class="asset-card">
+        <div class="asset-header">
+          <div class="asset-title-group">
+            <span style="font-size: 1.1rem;">🏷️</span>
+            <span class="asset-title">Hashtags</span>
+          </div>
+          <button class="btn-copy" onclick="copyContent('ytTagsBox', this)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            Copy
+          </button>
+        </div>
+        <div class="asset-box" id="ytTagsBox"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast">Copied to clipboard!</div>
+
+  <!-- App Script (v2 with timestamp to prevent browser cache) -->
+  <script type="module" src="./src/main.js?v=2"></script>
+</body>
+</html>

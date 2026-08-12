@@ -1,0 +1,10 @@
+{
+  "name": "ipo-shorts-studio",
+  "version": "1.0.0",
+  "description": "Progressive Web App for automated IPO YouTube Shorts content creation",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve .",
+    "test": "node test.js"
+  }
+}

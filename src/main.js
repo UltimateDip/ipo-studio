@@ -49,12 +49,12 @@ const ytTagsBox = document.getElementById('ytTagsBox');
  */
 function getFormData() {
   return {
-    companyName: companyNameInput.value.trim() || 'XYZ Company',
+    companyName: companyNameInput.value.trim(),
     highPrice: parseFloat(highPriceInput.value) || 0,
     lotSize: parseInt(lotSizeInput.value) || 0,
     gmpPercent: parseFloat(gmpPercentInput.value) || 0,
     gmpValue: parseFloat(gmpValueInput.value) || 0,
-    biddingDay: parseInt(biddingDayInput.value) || 3,
+    biddingDay: parseInt(biddingDayInput.value) || 0,
     qibSub: parseFloat(qibSubInput.value) || 0,
     niiSub: parseFloat(niiSubInput.value) || 0,
     overallSub: parseFloat(overallSubInput.value) || 0,
@@ -148,7 +148,22 @@ function updateAll() {
 
 
 /**
- * Copy to Clipboard with Visual Feedback
+ * Check if the form has missing fields
+ */
+function getMissingFields() {
+  const data = getFormData();
+  const missing = [];
+  if (!data.companyName) missing.push('Company Name');
+  if (!data.highPrice) missing.push('Price');
+  if (!data.lotSize) missing.push('Lot Size');
+  if (!data.gmpPercent && !data.gmpValue) missing.push('GMP');
+  if (!data.biddingDay) missing.push('Bidding Day');
+  if (!data.marketMood) missing.push('Market Mood');
+  return missing;
+}
+
+/**
+ * Copy to Clipboard with Visual Feedback & Warnings
  */
 window.copyContent = async function(elementId, btnElement) {
   const el = document.getElementById(elementId);
@@ -163,7 +178,12 @@ window.copyContent = async function(elementId, btnElement) {
     btnElement.classList.add('copied');
     btnElement.innerHTML = `<span>✓</span> Copied!`;
 
-    showToast('Copied to clipboard!');
+    const missing = getMissingFields();
+    if (missing.length > 0) {
+      showToast(`⚠️ Incomplete: missing ${missing.join(', ')}`, 'warning');
+    } else {
+      showToast('Copied to clipboard!', 'success');
+    }
 
     setTimeout(() => {
       btnElement.classList.remove('copied');
@@ -171,19 +191,24 @@ window.copyContent = async function(elementId, btnElement) {
     }, 2000);
   } catch (err) {
     console.error('Failed to copy', err);
-    showToast('Failed to copy (permission issue)');
+    showToast('Failed to copy (permission issue)', 'error');
   }
 };
+
+let toastTimer = null;
 
 /**
  * Show Toast Notification
  */
-function showToast(msg) {
+function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
   if (!toast) return;
   toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2400);
+  toast.className = `toast-container show ${type}`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, type === 'warning' ? 3600 : 2400);
 }
 
 /**
@@ -201,15 +226,23 @@ function setupEventListeners() {
     });
   });
 
-
-
-
+  // Mood toggle buttons
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      marketMoodInput.value = btn.dataset.value;
+      updateAll();
+    });
+  });
 
   // Clear Form
   document.getElementById('btnClear').addEventListener('click', () => {
     form.reset();
     gmpValueInput.value = '';
     companyNameInput.value = '';
+    marketMoodInput.value = '';
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
     updateAll();
     showToast('Form cleared');
   });
@@ -228,11 +261,16 @@ function initializeData() {
       lotSizeInput.value = p.lotSize || '';
       gmpPercentInput.value = p.gmpPercent || '';
       gmpValueInput.value = p.gmpValue || '';
-      biddingDayInput.value = p.biddingDay || 3;
+      biddingDayInput.value = p.biddingDay || '';
       qibSubInput.value = p.qibSub || '';
       niiSubInput.value = p.niiSub || '';
       overallSubInput.value = p.overallSub || '';
-      marketMoodInput.value = p.marketMood || 'neutral';
+      marketMoodInput.value = p.marketMood || '';
+      // Restore mood toggle button active state
+      if (p.marketMood) {
+        const activeBtn = document.querySelector(`.mood-btn[data-value="${p.marketMood}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+      }
       updateAll();
       return;
     }

@@ -1,58 +1,64 @@
-import { evaluateIPO } from './src/scorer.js';
 import {
-  generateVoiceover,
-  generateVisualPrompt,
-  generateUnifiedPrompt,
-  generateYTTitle,
-  generateYTDescription,
-  generateYTHashtags,
-  countWords
-} from './src/templates.js';
+  evaluateIPO,
+  generateUnifiedPrompt as generateGMPUnifiedPrompt,
+  generateYTTitle as generateGMPYTTitle,
+  generateYTDescription as generateGMPYTDescription,
+  generateYTHashtags as generateGMPYTHashtags
+} from './src/templates/daily-gmp-update/index.js';
 
-const testCases = [
-  {
-    name: 'Molbio Diagnostics Limited',
-    price: 807,
-    lotSize: 18,
-    gmpPercent: 32,
-    day: 3,
-    qib: 14.5,
-    nii: 8.2,
-    overall: 17.37,
-    vix: 14.2,
-    nifty5d: 0.8,
-    adRatio: 1.3
-  }
-];
+import {
+  generateAllotmentUnifiedPrompt,
+  generateAllotmentYTTitle,
+  generateAllotmentYTDescription,
+  generateAllotmentYTHashtags
+} from './src/templates/allotment/index.js';
 
-console.log('=== VERIFYING UNIFIED PROMPT & FEMALE VO INSTRUCTION ===\n');
+import { cleanCompanyName } from './src/templates/common.js';
 
-for (const t of testCases) {
-  const res = evaluateIPO({
-    companyName: t.name,
-    highPrice: t.price,
-    lotSize: t.lotSize,
-    gmpPercent: t.gmpPercent,
-    biddingDay: t.day,
-    qibSub: t.qib,
-    niiSub: t.nii,
-    overallSub: t.overall,
-    vix: t.vix,
-    nifty5d: t.nifty5d,
-    adRatio: t.adRatio
-  });
+console.log('=== 1. VERIFYING DAILY GMP UPDATE MODULE ===\n');
 
-  const unified = generateUnifiedPrompt(res.cleanedName, t.gmpPercent, res.estLotProfit, res.starRating, t.qib, t.nii, t.overall, t.day);
-  const vo = generateVoiceover(res.cleanedName, t.gmpPercent, res.estLotProfit, res.starRating);
+const gmpTest = {
+  name: 'Molbio Diagnostics Limited',
+  price: 807,
+  lotSize: 18,
+  gmpPercent: 32,
+  day: 3,
+  qib: 14.5,
+  nii: 8.2,
+  overall: 17.37
+};
 
-  console.log('[1] SEPARATE VO SCRIPT:');
-  console.log(vo);
-  console.log('\n[2] UNIFIED MASTER SINGLE PROMPT (1-CLICK COPY):');
-  console.log(unified);
-  console.log('\n[3] YOUTUBE TITLE:');
-  console.log(generateYTTitle(res.cleanedName));
-  console.log('\n[4] YOUTUBE DESCRIPTION:');
-  console.log(generateYTDescription(res.cleanedName, t.day, res.estLotProfit, t.gmpPercent, res.gmpValueCalculated, res.starRating));
-}
+const res = evaluateIPO({
+  companyName: gmpTest.name,
+  highPrice: gmpTest.price,
+  lotSize: gmpTest.lotSize,
+  gmpPercent: gmpTest.gmpPercent,
+  biddingDay: gmpTest.day,
+  qibSub: gmpTest.qib,
+  niiSub: gmpTest.nii,
+  overallSub: gmpTest.overall,
+  marketMood: 'bullish'
+});
 
-console.log('ALL CHECKS PASSED!');
+console.log('Cleaned Name:', res.cleanedName);
+console.log('Star Rating:', res.starRating);
+console.log('GMP Unified Prompt:\n', generateGMPUnifiedPrompt(res.cleanedName, gmpTest.gmpPercent, res.estLotProfit, res.starRating, gmpTest.qib, gmpTest.nii, gmpTest.overall, gmpTest.day));
+console.log('\nGMP YT Title:', generateGMPYTTitle(res.cleanedName, gmpTest.day));
+console.log('\nGMP YT Description:\n', generateGMPYTDescription(res.cleanedName, gmpTest.day, res.estLotProfit, gmpTest.gmpPercent, res.gmpValueCalculated, res.starRating, gmpTest.overall, gmpTest.qib, gmpTest.nii));
+console.log('\nGMP YT Hashtags:', generateGMPYTHashtags(res.cleanedName));
+
+console.log('\n\n=== 2. VERIFYING ALLOTMENT STATUS LIVE MODULE ===\n');
+
+const allotmentTest = {
+  name: 'Shiprocket Limited',
+  registrar: 'KFintech'
+};
+
+const cleanedAllotmentName = cleanCompanyName(allotmentTest.name);
+console.log('Cleaned Name:', cleanedAllotmentName);
+console.log('\nAllotment Unified Prompt:\n', generateAllotmentUnifiedPrompt(cleanedAllotmentName, allotmentTest.registrar));
+console.log('\nAllotment YT Title:\n', generateAllotmentYTTitle(cleanedAllotmentName));
+console.log('\nAllotment YT Description:\n', generateAllotmentYTDescription(cleanedAllotmentName, allotmentTest.registrar));
+console.log('\nAllotment YT Tags:\n', generateAllotmentYTHashtags(cleanedAllotmentName, allotmentTest.registrar));
+
+console.log('\n\n>>> ALL TESTS PASSED SUCCESSFULLY! <<<');

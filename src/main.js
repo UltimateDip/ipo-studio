@@ -1,14 +1,26 @@
-import { evaluateIPO, cleanCompanyName } from './scorer.js';
 import {
-  generateUnifiedPrompt,
-  generateYTTitle,
-  generateYTDescription,
-  generateYTHashtags
-} from './templates.js';
+  evaluateIPO,
+  generateUnifiedPrompt as generateGMPUnifiedPrompt,
+  generateYTTitle as generateGMPYTTitle,
+  generateYTDescription as generateGMPYTDescription,
+  generateYTHashtags as generateGMPYTHashtags
+} from './templates/daily-gmp-update/index.js';
 
-// DOM Elements
+import {
+  generateAllotmentUnifiedPrompt,
+  generateAllotmentYTTitle,
+  generateAllotmentYTDescription,
+  generateAllotmentYTHashtags
+} from './templates/allotment/index.js';
+
+import { cleanCompanyName } from './templates/common.js';
+
+// DOM Elements - Mode & Shared
 const form = document.getElementById('ipoForm');
+const contentModeSelect = document.getElementById('contentMode');
 const companyNameInput = document.getElementById('companyName');
+
+// DOM Elements - Daily GMP Update
 const highPriceInput = document.getElementById('highPrice');
 const lotSizeInput = document.getElementById('lotSize');
 const gmpPercentInput = document.getElementById('gmpPercent');
@@ -19,54 +31,92 @@ const niiSubInput = document.getElementById('niiSub');
 const overallSubInput = document.getElementById('overallSub');
 const marketMoodInput = document.getElementById('marketMood');
 
-// Results DOM
+// DOM Elements - Allotment Status Live
+const registrarInput = document.getElementById('registrar');
+
+// Results DOM - Daily GMP Update Hero
+const scoreHeroCard = document.getElementById('scoreHeroCard');
 const companyDisplay = document.getElementById('companyDisplay');
 const companySubText = document.getElementById('companySubText');
 const ratingBadge = document.getElementById('ratingBadge');
 const scoreNumber = document.getElementById('scoreNumber');
 const demandText = document.getElementById('demandText');
-
 const statLotProfit = document.getElementById('statLotProfit');
 const statGmp = document.getElementById('statGmp');
 const statSub = document.getElementById('statSub');
-
 const pillGmp = document.getElementById('pillGmp');
 const pillQib = document.getElementById('pillQib');
 const pillNii = document.getElementById('pillNii');
 const pillMood = document.getElementById('pillMood');
 const pillOverall = document.getElementById('pillOverall');
 
-// Asset Boxes
+// Results DOM - Allotment Hero
+const allotmentHeroCard = document.getElementById('allotmentHeroCard');
+const allotmentCompanyDisplay = document.getElementById('allotmentCompanyDisplay');
+const allotmentRegBadge = document.getElementById('allotmentRegBadge');
+
+// Output Asset Boxes
 const unifiedBox = document.getElementById('unifiedBox');
 const ytTitleBox = document.getElementById('ytTitleBox');
 const ytDescBox = document.getElementById('ytDescBox');
 const ytTagsBox = document.getElementById('ytTagsBox');
 
-
-
 /**
- * Get current form values
+ * Get current form values based on mode
  */
 function getFormData() {
   return {
-    companyName: companyNameInput.value.trim(),
-    highPrice: parseFloat(highPriceInput.value) || 0,
-    lotSize: parseInt(lotSizeInput.value) || 0,
-    gmpPercent: parseFloat(gmpPercentInput.value) || 0,
-    gmpValue: parseFloat(gmpValueInput.value) || 0,
-    biddingDay: parseInt(biddingDayInput.value) || 0,
-    qibSub: parseFloat(qibSubInput.value) || 0,
-    niiSub: parseFloat(niiSubInput.value) || 0,
-    overallSub: parseFloat(overallSubInput.value) || 0,
-    marketMood: marketMoodInput.value
+    contentMode: contentModeSelect ? contentModeSelect.value : 'daily-gmp-update',
+    companyName: companyNameInput ? companyNameInput.value.trim() : '',
+    // GMP fields
+    highPrice: parseFloat(highPriceInput ? highPriceInput.value : 0) || 0,
+    lotSize: parseInt(lotSizeInput ? lotSizeInput.value : 0) || 0,
+    gmpPercent: parseFloat(gmpPercentInput ? gmpPercentInput.value : 0) || 0,
+    gmpValue: parseFloat(gmpValueInput ? gmpValueInput.value : 0) || 0,
+    biddingDay: parseInt(biddingDayInput ? biddingDayInput.value : 0) || 0,
+    qibSub: parseFloat(qibSubInput ? qibSubInput.value : 0) || 0,
+    niiSub: parseFloat(niiSubInput ? niiSubInput.value : 0) || 0,
+    overallSub: parseFloat(overallSubInput ? overallSubInput.value : 0) || 0,
+    marketMood: marketMoodInput ? marketMoodInput.value : '',
+    // Allotment fields
+    registrar: registrarInput ? registrarInput.value.trim() : ''
   };
+}
+
+/**
+ * Switch active UI mode
+ */
+function setContentMode(mode) {
+  if (contentModeSelect) {
+    contentModeSelect.value = mode;
+  }
+
+  // Toggle field sections
+  document.querySelectorAll('.mode-fields').forEach(sec => {
+    if (sec.dataset.mode === mode) {
+      sec.style.display = 'block';
+    } else {
+      sec.style.display = 'none';
+    }
+  });
+
+  // Toggle hero cards
+  document.querySelectorAll('.mode-hero').forEach(card => {
+    if (card.dataset.mode === mode) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  updateAll();
 }
 
 /**
  * Sync GMP% and GMP ₹ Value
  */
 function syncGmpValue(fromPercent = true) {
-  const price = parseFloat(highPriceInput.value) || 0;
+  const price = parseFloat(highPriceInput ? highPriceInput.value : 0) || 0;
   if (price <= 0) return;
 
   if (fromPercent) {
@@ -85,57 +135,102 @@ function syncGmpValue(fromPercent = true) {
 }
 
 /**
- * Run scoring and update the entire UI
+ * Run calculations and update UI based on current mode
  */
 function updateAll() {
   const data = getFormData();
-  const evalResult = evaluateIPO(data);
+  const cleanedName = cleanCompanyName(data.companyName);
 
-  // Update Hero Card
-  companyDisplay.textContent = evalResult.cleanedName || 'Company Name';
-  companySubText.textContent = `${data.highPrice ? `₹${data.highPrice} / share` : ''} • Lot: ${data.lotSize || 0} • Day ${data.biddingDay}`;
-  scoreNumber.textContent = evalResult.starRating;
-  demandText.textContent = `${evalResult.demandCategory} (${evalResult.totalPoints}/100 pts)`;
+  if (data.contentMode === 'allotment') {
+    // -------------------------------------------------------------
+    // ALLOTMENT STATUS LIVE MODE
+    // -------------------------------------------------------------
+    const reg = data.registrar || 'Registrar Portal';
 
-  // Update badge theme class
-  ratingBadge.className = `rating-badge-circle ${evalResult.badgeColor}`;
+    if (allotmentCompanyDisplay) {
+      allotmentCompanyDisplay.textContent = cleanedName || 'Company Name';
+    }
+    if (allotmentRegBadge) {
+      allotmentRegBadge.textContent = reg;
+    }
 
-  // Quick stats
-  statLotProfit.textContent = `₹${Number(evalResult.estLotProfit).toLocaleString('en-IN')}`;
-  statGmp.textContent = `${data.gmpPercent}%`;
-  statSub.textContent = `${data.overallSub || '0'}x`;
+    if (unifiedBox) {
+      unifiedBox.textContent = generateAllotmentUnifiedPrompt(cleanedName, data.registrar);
+    }
+    if (ytTitleBox) {
+      ytTitleBox.textContent = generateAllotmentYTTitle(cleanedName);
+    }
+    if (ytDescBox) {
+      ytDescBox.textContent = generateAllotmentYTDescription(cleanedName, data.registrar);
+    }
+    if (ytTagsBox) {
+      ytTagsBox.textContent = generateAllotmentYTHashtags(cleanedName, data.registrar);
+    }
+  } else {
+    // -------------------------------------------------------------
+    // DAILY GMP UPDATE (DAY 1-3) MODE
+    // -------------------------------------------------------------
+    const evalResult = evaluateIPO(data);
 
-  // Point Pills
-  pillGmp.innerHTML = `GMP: <strong>${evalResult.gmpPts}</strong>/35`;
-  pillQib.innerHTML = `QIB: <strong>${evalResult.qibPts}</strong>/35`;
-  pillNii.innerHTML = `NII: <strong>${evalResult.niiPts}</strong>/15`;
-  pillMood.innerHTML = `Mood: <strong>${evalResult.moodPts}</strong>/10`;
-  pillOverall.innerHTML = `Sub: <strong>${evalResult.overallPts}</strong>/5`;
+    // Update Score Hero Card
+    if (companyDisplay) companyDisplay.textContent = evalResult.cleanedName || 'Company Name';
+    if (companySubText) {
+      companySubText.textContent = `${data.highPrice ? `₹${data.highPrice} / share` : ''} • Lot: ${data.lotSize || 0} • Day ${data.biddingDay || 1}`;
+    }
+    if (scoreNumber) scoreNumber.textContent = evalResult.starRating;
+    if (demandText) {
+      demandText.textContent = `${evalResult.demandCategory} (${evalResult.totalPoints}/100 pts)`;
+    }
 
-  // 1. SINGLE UNIFIED PROMPT (VOICE + VISUAL COMBINED)
-  if (unifiedBox) {
-    unifiedBox.textContent = generateUnifiedPrompt(
-      evalResult.cleanedName,
-      data.gmpPercent,
-      evalResult.estLotProfit,
-      evalResult.starRating,
-      data.qibSub,
-      data.niiSub,
-      data.overallSub,
-      data.biddingDay
-    );
+    // Update badge theme class
+    if (ratingBadge) {
+      ratingBadge.className = `rating-badge-circle ${evalResult.badgeColor}`;
+    }
+
+    // Quick stats
+    if (statLotProfit) {
+      statLotProfit.textContent = `₹${Number(evalResult.estLotProfit).toLocaleString('en-IN')}`;
+    }
+    if (statGmp) statGmp.textContent = `${data.gmpPercent}%`;
+    if (statSub) statSub.textContent = `${data.overallSub || '0'}x`;
+
+    // Point Pills
+    if (pillGmp) pillGmp.innerHTML = `GMP: <strong>${evalResult.gmpPts}</strong>/35`;
+    if (pillQib) pillQib.innerHTML = `QIB: <strong>${evalResult.qibPts}</strong>/35`;
+    if (pillNii) pillNii.innerHTML = `NII: <strong>${evalResult.niiPts}</strong>/15`;
+    if (pillMood) pillMood.innerHTML = `Mood: <strong>${evalResult.moodPts}</strong>/10`;
+    if (pillOverall) pillOverall.innerHTML = `Sub: <strong>${evalResult.overallPts}</strong>/5`;
+
+    // Prompt & Metadata Boxes
+    if (unifiedBox) {
+      unifiedBox.textContent = generateGMPUnifiedPrompt(
+        evalResult.cleanedName,
+        data.gmpPercent,
+        evalResult.estLotProfit,
+        evalResult.starRating,
+        data.qibSub,
+        data.niiSub,
+        data.overallSub,
+        data.biddingDay
+      );
+    }
+
+    if (ytTitleBox) ytTitleBox.textContent = generateGMPYTTitle(evalResult.cleanedName, data.biddingDay);
+    if (ytDescBox) {
+      ytDescBox.textContent = generateGMPYTDescription(
+        evalResult.cleanedName,
+        data.biddingDay,
+        evalResult.estLotProfit,
+        data.gmpPercent,
+        evalResult.gmpValueCalculated,
+        evalResult.starRating,
+        data.overallSub,
+        data.qibSub,
+        data.niiSub
+      );
+    }
+    if (ytTagsBox) ytTagsBox.textContent = generateGMPYTHashtags(evalResult.cleanedName);
   }
-
-  if (ytTitleBox) ytTitleBox.textContent = generateYTTitle(evalResult.cleanedName);
-  if (ytDescBox) ytDescBox.textContent = generateYTDescription(
-    evalResult.cleanedName,
-    data.biddingDay,
-    evalResult.estLotProfit,
-    data.gmpPercent,
-    evalResult.gmpValueCalculated,
-    evalResult.starRating
-  );
-  if (ytTagsBox) ytTagsBox.textContent = generateYTHashtags(evalResult.hashtagName);
 
   // Save to LocalStorage
   try {
@@ -145,20 +240,24 @@ function updateAll() {
   }
 }
 
-
-
 /**
- * Check if the form has missing fields
+ * Check if the form has missing fields based on mode
  */
 function getMissingFields() {
   const data = getFormData();
   const missing = [];
   if (!data.companyName) missing.push('Company Name');
-  if (!data.highPrice) missing.push('Price');
-  if (!data.lotSize) missing.push('Lot Size');
-  if (!data.gmpPercent && !data.gmpValue) missing.push('GMP');
-  if (!data.biddingDay) missing.push('Bidding Day');
-  if (!data.marketMood) missing.push('Market Mood');
+
+  if (data.contentMode === 'allotment') {
+    if (!data.registrar) missing.push('Registrar');
+  } else {
+    if (!data.highPrice) missing.push('Price');
+    if (!data.lotSize) missing.push('Lot Size');
+    if (!data.gmpPercent && !data.gmpValue) missing.push('GMP');
+    if (!data.biddingDay) missing.push('Bidding Day');
+    if (!data.marketMood) missing.push('Market Mood');
+  }
+
   return missing;
 }
 
@@ -215,6 +314,13 @@ function showToast(msg, type = 'success') {
  * Setup Event Listeners
  */
 function setupEventListeners() {
+  // Mode Change Event
+  if (contentModeSelect) {
+    contentModeSelect.addEventListener('change', (e) => {
+      setContentMode(e.target.value);
+    });
+  }
+
   // Real-time calculation on any input
   const inputs = form.querySelectorAll('input, select');
   inputs.forEach(input => {
@@ -237,15 +343,19 @@ function setupEventListeners() {
   });
 
   // Clear Form
-  document.getElementById('btnClear').addEventListener('click', () => {
-    form.reset();
-    gmpValueInput.value = '';
-    companyNameInput.value = '';
-    marketMoodInput.value = '';
-    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
-    updateAll();
-    showToast('Form cleared');
-  });
+  const btnClear = document.getElementById('btnClear');
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      form.reset();
+      if (gmpValueInput) gmpValueInput.value = '';
+      if (companyNameInput) companyNameInput.value = '';
+      if (registrarInput) registrarInput.value = '';
+      if (marketMoodInput) marketMoodInput.value = '';
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+      updateAll();
+      showToast('Form cleared');
+    });
+  }
 }
 
 /**
@@ -256,28 +366,33 @@ function initializeData() {
     const saved = localStorage.getItem('ipo_last_data');
     if (saved) {
       const p = JSON.parse(saved);
-      companyNameInput.value = p.companyName || '';
-      highPriceInput.value = p.highPrice || '';
-      lotSizeInput.value = p.lotSize || '';
-      gmpPercentInput.value = p.gmpPercent || '';
-      gmpValueInput.value = p.gmpValue || '';
-      biddingDayInput.value = p.biddingDay || '';
-      qibSubInput.value = p.qibSub || '';
-      niiSubInput.value = p.niiSub || '';
-      overallSubInput.value = p.overallSub || '';
-      marketMoodInput.value = p.marketMood || '';
-      // Restore mood toggle button active state
+      if (p.contentMode && contentModeSelect) {
+        contentModeSelect.value = p.contentMode;
+      }
+      if (companyNameInput) companyNameInput.value = p.companyName || '';
+      if (highPriceInput) highPriceInput.value = p.highPrice || '';
+      if (lotSizeInput) lotSizeInput.value = p.lotSize || '';
+      if (gmpPercentInput) gmpPercentInput.value = p.gmpPercent || '';
+      if (gmpValueInput) gmpValueInput.value = p.gmpValue || '';
+      if (biddingDayInput) biddingDayInput.value = p.biddingDay || '';
+      if (qibSubInput) qibSubInput.value = p.qibSub || '';
+      if (niiSubInput) niiSubInput.value = p.niiSub || '';
+      if (overallSubInput) overallSubInput.value = p.overallSub || '';
+      if (marketMoodInput) marketMoodInput.value = p.marketMood || '';
+      if (registrarInput) registrarInput.value = p.registrar || '';
+
       if (p.marketMood) {
         const activeBtn = document.querySelector(`.mood-btn[data-value="${p.marketMood}"]`);
         if (activeBtn) activeBtn.classList.add('active');
       }
-      updateAll();
+
+      setContentMode(p.contentMode || 'daily-gmp-update');
       return;
     }
   } catch (e) {}
 
-  // Fallback to empty form update
-  updateAll();
+  // Fallback to default mode update
+  setContentMode('daily-gmp-update');
 }
 
 /**
@@ -285,10 +400,10 @@ function initializeData() {
  */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=2')
+    navigator.serviceWorker.register('./sw.js?v=3')
       .then(reg => {
         reg.update();
-        console.log('SW updated to v2');
+        console.log('SW updated to v3');
       })
       .catch(err => console.log('SW registration failed', err));
   });

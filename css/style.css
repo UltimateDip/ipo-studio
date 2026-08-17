@@ -779,3 +779,92 @@ select {
   font-weight: 700;
   cursor: pointer;
 }
+
+/* ===================================================================
+   Mode Selector & Allotment Hero Card Styles
+   =================================================================== */
+
+.mode-selector-group {
+  margin-bottom: 18px;
+}
+
+.mode-select {
+  font-weight: 700;
+  border-color: rgba(0, 240, 255, 0.3);
+  background-color: rgba(15, 23, 42, 0.85);
+  color: var(--accent-cyan);
+}
+
+.mode-select:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+}
+
+/* Allotment Hero Card (Cyber Amber Alert Theme) */
+.allotment-hero-card {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(22, 26, 44, 0.95) 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 8px 32px 0 rgba(245, 158, 11, 0.12) !important;
+}
+
+.allotment-alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.allotment-pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-emerald);
+  background: rgba(16, 185, 129, 0.15);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+}
+
+.allotment-badge-pill {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(245, 158, 11, 0.18);
+  color: var(--accent-amber);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.allotment-main-row {
+  margin: 10px 0;
+}
+
+.allotment-footer-bar {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  align-items: center;
+}
+

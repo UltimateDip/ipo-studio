@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ipo-studio-v2';
+const CACHE_NAME = 'ipo-studio-v3';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

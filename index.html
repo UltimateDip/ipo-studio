@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>IPO Shorts Studio — 10-Star Algorithm & Video Generator</title>
+  <title>IPO Shorts Studio — AI Video & Prompt Engine</title>
   
   <!-- PWA Metadata -->
   <link rel="manifest" href="./manifest.json" />
@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 
-  <!-- App Stylesheet (v2) -->
-  <link rel="stylesheet" href="./css/style.css?v=2" />
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="./css/style.css?v=3" />
 </head>
 <body>
 
@@ -31,7 +31,7 @@
       <div class="brand-logo">10★</div>
       <div>
         <h1 class="brand-title">IPO Shorts Studio</h1>
-        <span class="brand-badge">Algo Engine</span>
+        <span class="brand-badge">Prompt Studio</span>
       </div>
     </div>
     <div class="header-actions">
@@ -60,108 +60,127 @@
     <section class="glass-card">
       <div class="card-header">
         <div class="card-title">
-          <span>📊</span> IPO Metrics Input
+          <span>📊</span> IPO Prompt Generator
         </div>
       </div>
 
-
-
       <form id="ipoForm" onsubmit="return false;">
-        <!-- Company Name -->
+        <!-- Extensible Content Mode Selector -->
+        <div class="form-group mode-selector-group">
+          <label for="contentMode">Content Type</label>
+          <select id="contentMode" class="mode-select">
+            <option value="daily-gmp-update">📈 Daily GMP Update (Day 1-3)</option>
+            <option value="allotment">🔔 Allotment Status Live</option>
+          </select>
+        </div>
+
+        <!-- Shared: Company Name -->
         <div class="form-group">
           <label for="companyName">Company / Issue Name</label>
-          <input type="text" id="companyName" placeholder="e.g. Molbio Diagnostics Limited" autocomplete="off" />
+          <input type="text" id="companyName" placeholder="e.g. Shiprocket Limited" autocomplete="off" />
           <div class="input-helper">Suffixes like Ltd/Pvt Ltd are auto-stripped for voiceover</div>
         </div>
 
-        <!-- Price & Lot Size -->
-        <div class="form-row">
+        <!-- Mode-Specific: Allotment Status Live -->
+        <div class="mode-fields" data-mode="allotment" style="display: none;">
           <div class="form-group">
-            <label for="highPrice">High Band Price</label>
-            <div class="input-wrapper">
-              <span class="input-prefix">₹</span>
-              <input type="number" id="highPrice" placeholder="807" step="any" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="lotSize">Lot Size (Shares)</label>
-            <div class="input-wrapper has-suffix">
-              <input type="number" id="lotSize" placeholder="18" />
-              <span class="input-suffix">qty</span>
-            </div>
+            <label for="registrar">Registrar Portal</label>
+            <input type="text" id="registrar" placeholder="e.g. KFintech, Link Intime, Bigshare" autocomplete="off" />
+            <div class="input-helper">Portal name for status check CTA & description (e.g. KFintech, Link Intime)</div>
           </div>
         </div>
 
-        <!-- GMP % and GMP ₹ Value -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="gmpPercent">GMP %</label>
-            <div class="input-wrapper has-suffix">
-              <input type="number" id="gmpPercent" placeholder="32" step="any" />
-              <span class="input-suffix">%</span>
+        <!-- Mode-Specific: Daily GMP Update -->
+        <div class="mode-fields" data-mode="daily-gmp-update">
+          <!-- Price & Lot Size -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="highPrice">High Band Price</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">₹</span>
+                <input type="number" id="highPrice" placeholder="807" step="any" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lotSize">Lot Size (Shares)</label>
+              <div class="input-wrapper has-suffix">
+                <input type="number" id="lotSize" placeholder="18" />
+                <span class="input-suffix">qty</span>
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label for="gmpValue">GMP Value (₹)</label>
-            <div class="input-wrapper">
-              <span class="input-prefix">₹</span>
-              <input type="number" id="gmpValue" placeholder="258" step="any" />
-            </div>
-          </div>
-        </div>
 
-        <!-- Bidding Day & QIB -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="biddingDay">Bidding Day</label>
-            <select id="biddingDay">
-              <option value="" disabled selected>Day</option>
-              <option value="1">Day 1</option>
-              <option value="2">Day 2</option>
-              <option value="3">Day 3 / Final</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="qibSub">QIB Bidding</label>
-            <div class="input-wrapper has-suffix">
-              <input type="number" id="qibSub" placeholder="14.5" step="any" />
-              <span class="input-suffix">x</span>
+          <!-- GMP % and GMP ₹ Value -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="gmpPercent">GMP %</label>
+              <div class="input-wrapper has-suffix">
+                <input type="number" id="gmpPercent" placeholder="32" step="any" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="gmpValue">GMP Value (₹)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">₹</span>
+                <input type="number" id="gmpValue" placeholder="258" step="any" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- NII and Overall -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="niiSub">NII / HNI Subscription</label>
-            <div class="input-wrapper has-suffix">
-              <input type="number" id="niiSub" placeholder="8.2" step="any" />
-              <span class="input-suffix">x</span>
+          <!-- Bidding Day & QIB -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="biddingDay">Bidding Day</label>
+              <select id="biddingDay">
+                <option value="" disabled selected>Day</option>
+                <option value="1">Day 1</option>
+                <option value="2">Day 2</option>
+                <option value="3">Day 3 / Final</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="qibSub">QIB Bidding</label>
+              <div class="input-wrapper has-suffix">
+                <input type="number" id="qibSub" placeholder="14.5" step="any" />
+                <span class="input-suffix">x</span>
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label for="overallSub">Overall Subscription</label>
-            <div class="input-wrapper has-suffix">
-              <input type="number" id="overallSub" placeholder="17.37" step="any" />
-              <span class="input-suffix">x</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Market Mood -->
-        <div class="form-group">
-          <label>Broader Market Mood</label>
-          <input type="hidden" id="marketMood" value="" />
-          <div class="mood-toggle-group">
-            <button type="button" class="mood-btn bullish" data-value="bullish">
-              <span class="mood-icon">📈</span> Bullish
-            </button>
-            <button type="button" class="mood-btn neutral" data-value="neutral">
-              <span class="mood-icon">⚖️</span> Neutral
-            </button>
-            <button type="button" class="mood-btn bearish" data-value="bearish">
-              <span class="mood-icon">📉</span> Bearish
-            </button>
+          <!-- NII and Overall -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="niiSub">NII / HNI Subscription</label>
+              <div class="input-wrapper has-suffix">
+                <input type="number" id="niiSub" placeholder="8.2" step="any" />
+                <span class="input-suffix">x</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="overallSub">Overall Subscription</label>
+              <div class="input-wrapper has-suffix">
+                <input type="number" id="overallSub" placeholder="17.37" step="any" />
+                <span class="input-suffix">x</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Market Mood -->
+          <div class="form-group">
+            <label>Broader Market Mood</label>
+            <input type="hidden" id="marketMood" value="" />
+            <div class="mood-toggle-group">
+              <button type="button" class="mood-btn bullish" data-value="bullish">
+                <span class="mood-icon">📈</span> Bullish
+              </button>
+              <button type="button" class="mood-btn neutral" data-value="neutral">
+                <span class="mood-icon">⚖️</span> Neutral
+              </button>
+              <button type="button" class="mood-btn bearish" data-value="bearish">
+                <span class="mood-icon">📉</span> Bearish
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -170,11 +189,11 @@
     <!-- RIGHT: Results & Generated Assets -->
     <section class="results-column">
       
-      <!-- 10-Star Score Hero Card -->
-      <div class="score-hero-card">
+      <!-- 10-Star Score Hero Card (Daily GMP Update Mode) -->
+      <div class="score-hero-card mode-hero" id="scoreHeroCard" data-mode="daily-gmp-update">
         <div class="score-main-row">
           <div class="company-callout">
-            <h2 id="companyDisplay">Molbio</h2>
+            <h2 id="companyDisplay">Company Name</h2>
             <div class="company-sub" id="companySubText">₹807 / share • Lot: 18 • Day 3</div>
             <div style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; margin-top: 6px;" id="demandText">
               Strong Demand / High Interest (88/100 pts)
@@ -213,6 +232,28 @@
         </div>
       </div>
 
+      <!-- Allotment Status Live Hero Card (Allotment Mode) -->
+      <div class="score-hero-card allotment-hero-card mode-hero" id="allotmentHeroCard" data-mode="allotment" style="display: none;">
+        <div class="allotment-alert-header">
+          <div class="allotment-pulse-badge">
+            <span class="pulse-dot"></span>
+            <span>ALLOTMENT STATUS: LIVE</span>
+          </div>
+          <span class="allotment-badge-pill" id="allotmentRegBadge">KFintech</span>
+        </div>
+        <div class="allotment-main-row">
+          <div class="company-callout">
+            <h2 id="allotmentCompanyDisplay">Shiprocket</h2>
+            <div class="company-sub" id="allotmentCompanySub">Check Application Status via PAN / Demat Portal</div>
+          </div>
+        </div>
+        <div class="allotment-footer-bar">
+          <span>⚡ 10-Second High-Retention Alert</span>
+          <span>•</span>
+          <span>Cyber Amber Alert Theme</span>
+        </div>
+      </div>
+
       <!-- SINGLE COMBINED PROMPT (VOICE + VISUAL IN ONE BLOCK) -->
       <div class="asset-card" style="border: 1.5px solid rgba(0, 240, 255, 0.4); background: linear-gradient(180deg, rgba(0, 240, 255, 0.09) 0%, rgba(22, 26, 44, 0.9) 100%);">
         <div class="asset-header">
@@ -225,7 +266,7 @@
             Copy
           </button>
         </div>
-        <div class="asset-box code-look" id="unifiedBox" style="max-height: 260px;"></div>
+        <div class="asset-box code-look" id="unifiedBox" style="max-height: 280px;"></div>
       </div>
 
       <!-- ASSET: YouTube Shorts Metadata -->
@@ -280,7 +321,7 @@
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toast">Copied to clipboard!</div>
 
-  <!-- App Script (v2 with timestamp to prevent browser cache) -->
-  <script type="module" src="./src/main.js?v=2"></script>
+  <!-- App Script -->
+  <script type="module" src="./src/main.js?v=3"></script>
 </body>
 </html>

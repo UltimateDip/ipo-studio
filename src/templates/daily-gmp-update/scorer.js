@@ -1,54 +1,12 @@
+import { cleanCompanyName, generateHashtag } from '../common.js';
+
 /**
- * IPO Scoring Algorithm Module
- * Implements the 100-Point Scoring Framework from ipo_score_algo_2.txt
+ * IPO Scoring Algorithm Module (for Daily GMP Update)
+ * Implements the 100-Point Scoring Framework
  */
-
-export function cleanCompanyName(rawName) {
-  if (!rawName) return '';
-  let name = rawName.trim();
-  // Remove common corporate suffixes (case-insensitive)
-  const suffixes = [
-    /\s+Private\s+Limited\b/gi,
-    /\s+Pvt\.?\s+Ltd\.?\b/gi,
-    /\s+Pvt\b/gi,
-    /\s+Limited\b/gi,
-    /\s+Ltd\.?\b/gi,
-    /\s+Industries\b/gi,
-    /\s+Technologies\b/gi,
-    /\s+Technology\b/gi,
-    /\s+Enterprises\b/gi,
-    /\s+Corporation\b/gi,
-    /\s+Corp\.?\b/gi,
-    /\s+Services\b/gi,
-    /\s+Solutions\b/gi,
-    /\s+India\b/gi,
-    /\s+International\b/gi,
-    /\s+Holdings\b/gi,
-    /\s+Capital\b/gi
-  ];
-  
-  for (const regex of suffixes) {
-    name = name.replace(regex, '');
-  }
-  
-  // Clean punctuation and multiple spaces
-  name = name.replace(/[,.-]+$/, '').trim();
-  return name;
-}
-
-export function generateHashtag(cleanedName) {
-  if (!cleanedName) return 'IPO';
-  // Remove spaces and special characters for camelCase/PascalCase hashtag
-  return cleanedName.replace(/[^a-zA-Z0-9]/g, '');
-}
 
 /**
  * 1. Grey Market Premium / Projected Gain (Max 35 Pts)
- * < 0% (Discount): 0 pts
- * 0% – 10%: 10 pts
- * 10% – 25%: 20 pts
- * 25% – 50%: 28 pts
- * > 50%: 35 pts
  */
 export function calcGMPScore(gmpPercent) {
   const gmp = parseFloat(gmpPercent);
@@ -61,9 +19,6 @@ export function calcGMPScore(gmpPercent) {
 
 /**
  * 2. QIB Bidding (Max 35 Pts) - Normalized by Day of offer
- * Day 1: <0.5x (5), 0.5-2x (15), 2-10x (25), 10-30x (35), >30x (35)
- * Day 2: <0.5x (0), 0.5-2x (10), 2-10x (20), 10-30x (30), >30x (35)
- * Day 3+: <0.5x (0), 0.5-2x (5), 2-10x (15), 10-30x (25), >30x (35)
  */
 export function calcQIBScore(qibSub, day = 3) {
   const qib = parseFloat(qibSub);
@@ -93,10 +48,6 @@ export function calcQIBScore(qibSub, day = 3) {
 
 /**
  * 3. NII / HNI Subscription (Max 15 Pts)
- * < 1x: 0 pts
- * 1x – 5x: 5 pts
- * 5x – 20x: 10 pts
- * > 20x: 15 pts
  */
 export function calcNIIScore(niiSub) {
   const nii = parseFloat(niiSub);
@@ -108,7 +59,6 @@ export function calcNIIScore(niiSub) {
 
 /**
  * 4. Broader Market Mood (Max 10 Pts)
- * Simplified: Bullish (10 pts), Neutral (5 pts), Bearish (0 pts)
  */
 export function calcMarketMoodScore(mood) {
   let points = 5;
@@ -130,10 +80,6 @@ export function calcMarketMoodScore(mood) {
 
 /**
  * 5. Overall Subscription (Max 5 Pts)
- * < 1x: 0 pts
- * 1x – 5x: 2 pts
- * 5x – 15x: 3.5 pts
- * > 15x: 5 pts
  */
 export function calcOverallScore(overallSub) {
   const sub = parseFloat(overallSub);

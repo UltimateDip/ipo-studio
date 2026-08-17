@@ -43,9 +43,9 @@ const res = evaluateIPO({
 console.log('Cleaned Name:', res.cleanedName);
 console.log('Star Rating:', res.starRating);
 console.log('GMP Unified Prompt:\n', generateGMPUnifiedPrompt(res.cleanedName, gmpTest.gmpPercent, res.estLotProfit, res.starRating, gmpTest.qib, gmpTest.nii, gmpTest.overall, gmpTest.day));
-console.log('\nGMP YT Title:', generateGMPYTTitle(res.cleanedName));
-console.log('\nGMP YT Description:\n', generateGMPYTDescription(res.cleanedName, gmpTest.day, res.estLotProfit, gmpTest.gmpPercent, res.gmpValueCalculated, res.starRating));
-console.log('\nGMP YT Hashtags:', generateGMPYTHashtags(res.hashtagName));
+console.log('\nGMP YT Title:', generateGMPYTTitle(res.cleanedName, gmpTest.day));
+console.log('\nGMP YT Description:\n', generateGMPYTDescription(res.cleanedName, gmpTest.day, res.estLotProfit, gmpTest.gmpPercent, res.gmpValueCalculated, res.starRating, gmpTest.overall, gmpTest.qib, gmpTest.nii));
+console.log('\nGMP YT Hashtags:', generateGMPYTHashtags(res.cleanedName));
 
 console.log('\n\n=== 2. VERIFYING ALLOTMENT STATUS LIVE MODULE ===\n');
 

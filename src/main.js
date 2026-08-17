@@ -215,7 +215,7 @@ function updateAll() {
       );
     }
 
-    if (ytTitleBox) ytTitleBox.textContent = generateGMPYTTitle(evalResult.cleanedName);
+    if (ytTitleBox) ytTitleBox.textContent = generateGMPYTTitle(evalResult.cleanedName, data.biddingDay);
     if (ytDescBox) {
       ytDescBox.textContent = generateGMPYTDescription(
         evalResult.cleanedName,
@@ -223,10 +223,13 @@ function updateAll() {
         evalResult.estLotProfit,
         data.gmpPercent,
         evalResult.gmpValueCalculated,
-        evalResult.starRating
+        evalResult.starRating,
+        data.overallSub,
+        data.qibSub,
+        data.niiSub
       );
     }
-    if (ytTagsBox) ytTagsBox.textContent = generateGMPYTHashtags(evalResult.hashtagName);
+    if (ytTagsBox) ytTagsBox.textContent = generateGMPYTHashtags(evalResult.cleanedName);
   }
 
   // Save to LocalStorage

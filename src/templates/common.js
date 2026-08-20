@@ -25,7 +25,9 @@ export function cleanCompanyName(rawName) {
     /\s+India\b/gi,
     /\s+International\b/gi,
     /\s+Holdings\b/gi,
-    /\s+Capital\b/gi
+    /\s+Capital\b/gi,
+    /\s+Logistics\b/gi,
+    /\s+Products\b/gi
   ];
   
   for (const regex of suffixes) {

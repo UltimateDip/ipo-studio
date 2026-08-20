@@ -15,25 +15,25 @@ export function generateUnifiedPrompt(companyName, gmpPercent, estLotProfit, sta
   const overallVal = overallSub ? parseFloat(overallSub).toFixed(2) : '0.00';
   const dayText = biddingDay ? `Day ${biddingDay}` : 'Day 1';
 
-  return `Generate a 10-second vertical 9:16 high-retention financial video synchronized with an energetic female voiceover.
+  return `Generate a 10-second vertical 9:16 high-retention financial data video synchronized with an energetic female voiceover.
 
 [AUDIO / VOICEOVER SCRIPT]:
-(Voice: Confident, energetic female voice with a clear, punchy Indian/Global English accent | Around 20 words, ~9.5s duration)
-"${comp} IPO breakdown! GMP sits at ${gmpPercent}%, estimating ${profitFormatted} rupees profit. Our data model rates it ${starRating} stars."
+(Voice: Confident, energetic female voice with a clear, punchy Indian/Global English accent | Strictly 16–19 words, ~9.5s duration)
+"${comp} IPO breakdown! GMP sits at ${gmpPercent}%, estimating ${profitFormatted} rupees profit. Data model rates it ${starRating} stars."
 
 [VISUAL & CINEMATOGRAPHY SPECIFICATION]:
 - Format: 9:16 vertical aspect ratio, ultra-crisp 4K motion graphics.
-- Aesthetic & Lighting: Dark Glass Fintech Terminal aesthetic with deep obsidian glass panels, vibrant neon cyan and emerald green volumetric lighting, and subtle floating digital data dust.
+- Aesthetic & Lighting: Dark Glass Fintech Terminal aesthetic with deep obsidian glass panels, vibrant neon emerald green volumetric lighting, and subtle floating digital particle dust.
 - Camera Motion: Continuous, smooth camera dolly forward motion creating constant visual momentum.
 - Framing Anchors:
   * Top: Fixed glowing neon series badge '[IPO IN 10]' with small subtext '${dayText} | Total Sub: ${overallVal}x'.
-  * Center: Dynamic high-contrast split counters and glowing star rating badge in motion.
-  * Bottom: Metallic status badge and channel watermark "10 SECONDS. ONE MONEY LESSON." with small subtext "Educational Purpose Only | Data Analysis".
+  * Center: Solid, high-contrast static 3D cards snapping cleanly into focus (no rapid scrolling text). Primary card displays bold metallic text 'EST. LOT PROFIT: ₹${profitFormatted}' with a solid glowing secondary chip '${gmpPercent}% GMP'.
+  * Bottom: Metallic status badge reading 'DATA SCORE: ${starRating} / 10 STARS' locked directly above the fixed channel watermark "10 SECONDS. ONE MONEY LESSON." with small subtext "Educational Purpose Only | Data Analysis".
 
 [SYNCHRONIZED 3-ACT TIMELINE]:
-- 0-2s (The Hook): Camera glides forward over dark obsidian glass as the neon top header emerges: '${comp} IPO' with pulsing subtext '${dayText}'.
-- 2-7s (The Numbers): Central display dynamically shows a massive glowing text: 'GMP: ${gmpPercent}%' alongside a bright green metallic badge: 'EST. PROFIT: ₹${profitFormatted}'. Secondary HUD readouts flash in the corner: 'QIB: ${qibVal}x | NII: ${niiVal}x'.
-- 7-10s (The Payoff): A polished metallic status badge expands center-screen reading 'DATA SCORE: ${starRating} / 10 STARS' with a glowing emerald border, locking directly above the fixed channel watermark "10 SECONDS. ONE MONEY LESSON." (Subtext: Educational Purpose Only).`;
+- 0–2s (The Hook): Camera glides forward over dark obsidian glass as the solid neon top header emerges: '${comp.toUpperCase()} IPO' with pulsing subtext '${dayText}'.
+- 2–7s (The Single Profit Metric): Center display cleanly snaps into a bold, static 3D emerald glass card: 'EST. LOT PROFIT: ₹${profitFormatted}' with a solid glowing secondary pill badge: '${gmpPercent}% GMP'. Secondary HUD indicator reads: 'QIB: ${qibVal}x | NII: ${niiVal}x'.
+- 7–10s (The Neutral Payoff): A polished metallic status badge expands center-screen reading 'DATA SCORE: ${starRating} / 10 STARS' directly above the fixed channel watermark "10 SECONDS. ONE MONEY LESSON." (Subtext: Educational Purpose Only).`;
 }
 
 /**
@@ -41,8 +41,16 @@ export function generateUnifiedPrompt(companyName, gmpPercent, estLotProfit, sta
  */
 export function generateYTTitle(companyName, biddingDay) {
   const comp = companyName || 'Company';
-  const dayText = biddingDay ? `Day ${biddingDay}` : 'Day 1';
-  return `${comp} IPO Breakdown (${dayText}) | Updated GMP`;
+  const dayNum = parseInt(biddingDay, 10);
+  
+  if (dayNum === 1) {
+    return `${comp} IPO Breakdown (Day 1) #Shorts`;
+  } else if (dayNum === 2) {
+    return `${comp} IPO: Day 2 Demand & Review #Shorts`;
+  } else if (dayNum === 3) {
+    return `${comp} IPO: Final Day Demand & Score #Shorts`;
+  }
+  return `${comp} IPO Data Breakdown #Shorts`;
 }
 
 /**
@@ -51,7 +59,7 @@ export function generateYTTitle(companyName, biddingDay) {
 export function generateYTDescription(companyName, biddingDay, estLotProfit, gmpPercent, gmpValueCalculated, starRating, overallSub, qibSub, niiSub) {
   const comp = companyName || 'Company';
   const profitFormatted = formatINR(estLotProfit);
-  const dayText = biddingDay ? `Day ${biddingDay}` : 'Day 1';
+  const dayText = biddingDay ? (parseInt(biddingDay, 10) === 3 ? 'Day 3 / Final' : `Day ${biddingDay}`) : 'Day 1';
   const overallVal = overallSub ? parseFloat(overallSub).toFixed(2) : '0.00';
   const qibVal = qibSub ? parseFloat(qibSub).toFixed(2) : '0.00';
   const niiVal = niiSub ? parseFloat(niiSub).toFixed(2) : '0.00';
@@ -59,7 +67,7 @@ export function generateYTDescription(companyName, biddingDay, estLotProfit, gmp
   
   return `10-second quantitative data breakdown for ${comp} IPO (${dayText}):
 
-• Estimated Lot Gain: ₹${profitFormatted}
+• Estimated Lot Profit: ₹${profitFormatted}
 • Grey Market Premium (GMP): ${gmpPercent}% (₹${gmpVal}/share)
 • Total Subscription: ${overallVal}x (QIB: ${qibVal}x | NII: ${niiVal}x)
 • Data Model Rating: ${starRating} / 10 Stars
@@ -74,5 +82,5 @@ Disclaimer: For educational and informational purposes only. Not financial advic
  */
 export function generateYTHashtags(companyName) {
   const comp = companyName || 'Company';
-  return `Shorts, ${comp} IPO, ${comp} GMP, ${comp} IPO Review, IPO GMP Today, IPO Subscription Status, Stock Market India, IPO News, Share Market, GMP`;
+  return `Shorts, ${comp} IPO, ${comp} GMP, ${comp} IPO Review, IPO GMP Today, IPO Subscription Status, Stock Market India, IPO News, Share Market`;
 }

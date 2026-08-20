@@ -13,18 +13,27 @@ import {
   generateAllotmentYTHashtags
 } from './templates/allotment/index.js';
 
-import { cleanCompanyName } from './templates/common.js';
+import {
+  generateListingTomorrowUnifiedPrompt,
+  generateListingTomorrowYTTitle,
+  generateListingTomorrowYTDescription,
+  generateListingTomorrowYTHashtags
+} from './templates/listing-tomorrow/index.js';
+
+import { cleanCompanyName, formatINR } from './templates/common.js';
 
 // DOM Elements - Mode & Shared
 const form = document.getElementById('ipoForm');
 const contentModeSelect = document.getElementById('contentMode');
 const companyNameInput = document.getElementById('companyName');
 
-// DOM Elements - Daily GMP Update
+// DOM Elements - Shared IPO Fields (used by daily-gmp-update & listing-tomorrow)
 const highPriceInput = document.getElementById('highPrice');
 const lotSizeInput = document.getElementById('lotSize');
 const gmpPercentInput = document.getElementById('gmpPercent');
 const gmpValueInput = document.getElementById('gmpValue');
+
+// DOM Elements - Daily GMP Update Only
 const biddingDayInput = document.getElementById('biddingDay');
 const qibSubInput = document.getElementById('qibSub');
 const niiSubInput = document.getElementById('niiSub');
@@ -55,6 +64,12 @@ const allotmentHeroCard = document.getElementById('allotmentHeroCard');
 const allotmentCompanyDisplay = document.getElementById('allotmentCompanyDisplay');
 const allotmentRegBadge = document.getElementById('allotmentRegBadge');
 
+// Results DOM - Listing Tomorrow Hero
+const listingHeroCard = document.getElementById('listingHeroCard');
+const listingCompanyDisplay = document.getElementById('listingCompanyDisplay');
+const listingCompanySub = document.getElementById('listingCompanySub');
+const listingTimeBadge = document.getElementById('listingTimeBadge');
+
 // Output Asset Boxes
 const unifiedBox = document.getElementById('unifiedBox');
 const ytTitleBox = document.getElementById('ytTitleBox');
@@ -68,11 +83,12 @@ function getFormData() {
   return {
     contentMode: contentModeSelect ? contentModeSelect.value : 'daily-gmp-update',
     companyName: companyNameInput ? companyNameInput.value.trim() : '',
-    // GMP fields
+    // Shared IPO fields
     highPrice: parseFloat(highPriceInput ? highPriceInput.value : 0) || 0,
     lotSize: parseInt(lotSizeInput ? lotSizeInput.value : 0) || 0,
     gmpPercent: parseFloat(gmpPercentInput ? gmpPercentInput.value : 0) || 0,
     gmpValue: parseFloat(gmpValueInput ? gmpValueInput.value : 0) || 0,
+    // Daily GMP Update only
     biddingDay: parseInt(biddingDayInput ? biddingDayInput.value : 0) || 0,
     qibSub: parseFloat(qibSubInput ? qibSubInput.value : 0) || 0,
     niiSub: parseFloat(niiSubInput ? niiSubInput.value : 0) || 0,
@@ -84,29 +100,24 @@ function getFormData() {
 }
 
 /**
- * Switch active UI mode
+ * Switch active UI mode.
+ * Supports space-separated data-mode attributes so shared sections
+ * (e.g. "daily-gmp-update listing-tomorrow") appear for multiple modes.
  */
 function setContentMode(mode) {
   if (contentModeSelect) {
     contentModeSelect.value = mode;
   }
 
-  // Toggle field sections
+  // Toggle field sections (supports space-separated data-mode)
   document.querySelectorAll('.mode-fields').forEach(sec => {
-    if (sec.dataset.mode === mode) {
-      sec.style.display = 'block';
-    } else {
-      sec.style.display = 'none';
-    }
+    const modes = (sec.dataset.mode || '').split(/\s+/);
+    sec.style.display = modes.includes(mode) ? 'block' : 'none';
   });
 
-  // Toggle hero cards
+  // Toggle hero cards (exact match)
   document.querySelectorAll('.mode-hero').forEach(card => {
-    if (card.dataset.mode === mode) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
+    card.style.display = card.dataset.mode === mode ? 'block' : 'none';
   });
 
   updateAll();
@@ -141,7 +152,43 @@ function updateAll() {
   const data = getFormData();
   const cleanedName = cleanCompanyName(data.companyName);
 
-  if (data.contentMode === 'allotment') {
+  if (data.contentMode === 'listing-tomorrow') {
+    // -------------------------------------------------------------
+    // LISTING TOMORROW MODE (uses shared price/lot/gmp fields)
+    // -------------------------------------------------------------
+    const price = data.highPrice;
+    const lot = data.lotSize;
+    const gmpPct = data.gmpPercent;
+    const estLotProfit = price > 0 && lot > 0 ? (price * (gmpPct / 100) * lot) : 0;
+
+    if (listingCompanyDisplay) {
+      listingCompanyDisplay.textContent = cleanedName || 'Company Name';
+    }
+    if (listingCompanySub) {
+      listingCompanySub.textContent = `Expected Gain: +${gmpPct}% • Est. Lot Profit: ₹${formatINR(estLotProfit)}`;
+    }
+
+    if (unifiedBox) {
+      unifiedBox.textContent = generateListingTomorrowUnifiedPrompt(
+        cleanedName,
+        gmpPct,
+        estLotProfit
+      );
+    }
+    if (ytTitleBox) {
+      ytTitleBox.textContent = generateListingTomorrowYTTitle(cleanedName, gmpPct);
+    }
+    if (ytDescBox) {
+      ytDescBox.textContent = generateListingTomorrowYTDescription(
+        cleanedName,
+        gmpPct,
+        estLotProfit
+      );
+    }
+    if (ytTagsBox) {
+      ytTagsBox.textContent = generateListingTomorrowYTHashtags(cleanedName);
+    }
+  } else if (data.contentMode === 'allotment') {
     // -------------------------------------------------------------
     // ALLOTMENT STATUS LIVE MODE
     // -------------------------------------------------------------
@@ -250,6 +297,10 @@ function getMissingFields() {
 
   if (data.contentMode === 'allotment') {
     if (!data.registrar) missing.push('Registrar');
+  } else if (data.contentMode === 'listing-tomorrow') {
+    if (!data.highPrice) missing.push('Price');
+    if (!data.lotSize) missing.push('Lot Size');
+    if (!data.gmpPercent) missing.push('GMP %');
   } else {
     if (!data.highPrice) missing.push('Price');
     if (!data.lotSize) missing.push('Lot Size');

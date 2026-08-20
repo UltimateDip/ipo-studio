@@ -13,6 +13,13 @@ import {
   generateAllotmentYTHashtags
 } from './src/templates/allotment/index.js';
 
+import {
+  generateListingTomorrowUnifiedPrompt,
+  generateListingTomorrowYTTitle,
+  generateListingTomorrowYTDescription,
+  generateListingTomorrowYTHashtags
+} from './src/templates/listing-tomorrow/index.js';
+
 import { cleanCompanyName } from './src/templates/common.js';
 
 console.log('=== 1. VERIFYING DAILY GMP UPDATE MODULE ===\n');
@@ -60,5 +67,20 @@ console.log('\nAllotment Unified Prompt:\n', generateAllotmentUnifiedPrompt(clea
 console.log('\nAllotment YT Title:\n', generateAllotmentYTTitle(cleanedAllotmentName));
 console.log('\nAllotment YT Description:\n', generateAllotmentYTDescription(cleanedAllotmentName, allotmentTest.registrar));
 console.log('\nAllotment YT Tags:\n', generateAllotmentYTHashtags(cleanedAllotmentName, allotmentTest.registrar));
+
+console.log('\n\n=== 3. VERIFYING LISTING TOMORROW MODULE ===\n');
+
+const listingTest = {
+  name: 'Behari Lal Limited',
+  gmpPercent: 45,
+  estLotProfit: 6604
+};
+
+const cleanedListingName = cleanCompanyName(listingTest.name);
+console.log('Cleaned Name:', cleanedListingName);
+console.log('\nListing Tomorrow Unified Prompt:\n', generateListingTomorrowUnifiedPrompt(cleanedListingName, listingTest.gmpPercent, listingTest.estLotProfit));
+console.log('\nListing Tomorrow YT Title:\n', generateListingTomorrowYTTitle(cleanedListingName, listingTest.gmpPercent));
+console.log('\nListing Tomorrow YT Description:\n', generateListingTomorrowYTDescription(cleanedListingName, listingTest.gmpPercent, listingTest.estLotProfit));
+console.log('\nListing Tomorrow YT Tags:\n', generateListingTomorrowYTHashtags(cleanedListingName));
 
 console.log('\n\n>>> ALL TESTS PASSED SUCCESSFULLY! <<<');

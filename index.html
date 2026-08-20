@@ -71,13 +71,14 @@
           <select id="contentMode" class="mode-select">
             <option value="daily-gmp-update">📈 Daily GMP Update (Day 1-3)</option>
             <option value="allotment">🔔 Allotment Status Live</option>
+            <option value="listing-tomorrow">🚀 Listing Tomorrow Alert</option>
           </select>
         </div>
 
         <!-- Shared: Company Name -->
         <div class="form-group">
           <label for="companyName">Company / Issue Name</label>
-          <input type="text" id="companyName" placeholder="e.g. Shiprocket Limited" autocomplete="off" />
+          <input type="text" id="companyName" placeholder="e.g. Behari Lal Limited" autocomplete="off" />
           <div class="input-helper">Suffixes like Ltd/Pvt Ltd are auto-stripped for voiceover</div>
         </div>
 
@@ -90,8 +91,12 @@
           </div>
         </div>
 
-        <!-- Mode-Specific: Daily GMP Update -->
-        <div class="mode-fields" data-mode="daily-gmp-update">
+        <!-- Mode-Specific: Listing Tomorrow -->
+        <div class="mode-fields" data-mode="listing-tomorrow" style="display: none;">
+        </div>
+
+        <!-- Shared: Price, Lot Size, GMP % (visible in daily-gmp-update AND listing-tomorrow) -->
+        <div class="mode-fields" data-mode="daily-gmp-update listing-tomorrow">
           <!-- Price & Lot Size -->
           <div class="form-row">
             <div class="form-group">
@@ -110,7 +115,7 @@
             </div>
           </div>
 
-          <!-- GMP % and GMP ₹ Value -->
+          <!-- GMP % -->
           <div class="form-row">
             <div class="form-group">
               <label for="gmpPercent">GMP %</label>
@@ -127,7 +132,10 @@
               </div>
             </div>
           </div>
+        </div>
 
+        <!-- Mode-Specific: Daily GMP Update Only (Bidding Day, Subscriptions, Mood) -->
+        <div class="mode-fields" data-mode="daily-gmp-update">
           <!-- Bidding Day & QIB -->
           <div class="form-row">
             <div class="form-group">
@@ -251,6 +259,28 @@
           <span>⚡ 10-Second High-Retention Alert</span>
           <span>•</span>
           <span>Cyber Amber Alert Theme</span>
+        </div>
+      </div>
+
+      <!-- Listing Tomorrow Hero Card (Listing Tomorrow Mode) -->
+      <div class="score-hero-card listing-hero-card mode-hero" id="listingHeroCard" data-mode="listing-tomorrow" style="display: none;">
+        <div class="allotment-alert-header">
+          <div class="allotment-pulse-badge" style="color: #34d399; background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.35);">
+            <span class="pulse-dot"></span>
+            <span>LISTING TOMORROW</span>
+          </div>
+          <span class="allotment-badge-pill" style="color: #34d399; background: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.35);" id="listingTimeBadge">10:00 AM</span>
+        </div>
+        <div class="allotment-main-row">
+          <div class="company-callout">
+            <h2 id="listingCompanyDisplay">Behari Lal</h2>
+            <div class="company-sub" id="listingCompanySub">Expected Gain: +45% • Est. Lot Profit: ₹6,604</div>
+          </div>
+        </div>
+        <div class="allotment-footer-bar">
+          <span>⚡ 10-Second High-Retention Alert</span>
+          <span>•</span>
+          <span>Emerald Bull Terminal Theme</span>
         </div>
       </div>
 
